@@ -1,0 +1,88 @@
+[project]
+name = "wsa-labs"
+version = "0.1.0"
+description = "Personal PortSwigger Web Security Academy lab scripts"
+readme = "README.md"
+authors = [
+    { name = "Milan Nikic", email = "milnik79@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+wsa-labs = "wsa_labs:main"
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.2",
+]
+
+# -------------------------
+# Ruff — formatter + linter
+# -------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+# Keep Ruff as the single linter; broad but sensible rule set.
+select = [
+  "E","W",   # pycodestyle
+  "F",       # pyflakes
+  "I",       # isort
+  "B",       # bugbear
+  "UP",      # pyupgrade
+  "S",       # security (can be noisy; tune per-file if needed)
+  "C90",     # McCabe complexity
+  "RUF"      # Ruff-specific
+]
+# Avoid duplicate “undefined name” with BasedPyright:
+extend-ignore = ["F821"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["wsa_labs"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"src/wsa_labs/**/__init__.py" = ["F401"]  # allow re-exports
+
+# --------------------------------
+# BasedPyright — type checking only
+# --------------------------------
+[tool.basedpyright]
+typeCheckingMode = "standard"
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests"]
+exclude = ["**/.venv", "build", "dist", ".git", ".ruff_cache", ".pytest_cache"]
+
+# Deduplicate: mute lint-like diagnostics covered by Ruff
+[tool.basedpyright.diagnosticSeverityOverrides]
+reportUnusedImport = "none"
+reportUnusedVariable = "none"
+reportDuplicateImport = "none"
+# Optional extras if you still see overlap:
+# reportWildcardImportFromLibrary = "none"
+# reportUnusedCallResult = "none"
+
+# Make module resolution nice in both src/ and tests/
+[tool.basedpyright.executionEnvironments]
+# Base package
+[[tool.basedpyright.executionEnvironments]]
+root = "src"
+extraPaths = ["src"]
+# Tests import the package too
+[[tool.basedpyright.executionEnvironments]]
+root = "tests"
+extraPaths = ["src"]
